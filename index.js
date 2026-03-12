@@ -1,1 +1,10 @@
-console.log("hello");
+import dotenv from "dotenv"
+
+dotenv.config({
+    path:"./.env"
+})
+
+const myusername = process.env.A_username;
+
+console.log(myusername);
+
