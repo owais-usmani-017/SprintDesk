@@ -1,11 +1,23 @@
 import dotenv from "dotenv"
-
 dotenv.config({
     path:"./.env"
 })
 
-const myusername = process.env.A_username;
+import express from "express";
+const app = express();
+const port = process.env.PORT || 3000;
 
-console.log(myusername);
-console.log("everything is running smoothly")
+app.get("/" , (req,res) => {
+    res.send("hello world")
+})
+
+app.get("/about" , (req,res)=>{
+    res.send("about page")
+})
+
+app.listen(port,()=> {
+    console.log(`listening on port http://localhost:${port}`)
+})
+
+
 
