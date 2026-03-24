@@ -1,23 +1,23 @@
 import dotenv from "dotenv"
+import app from "./app.js"
+import connectDB from "./db/index.db.js";
 dotenv.config({
     path:"./.env"
 })
 
-import express from "express";
-const app = express();
+
 const port = process.env.PORT || 3000;
 
-app.get("/" , (req,res) => {
-    res.send("hello world")
-})
-
-app.get("/about" , (req,res)=>{
-    res.send("about page")
-})
-
-app.listen(port,()=> {
-    console.log(`listening on port http://localhost:${port}`)
-})
+connectDB()
+    .then(()=> {
+        app.listen(port, () => {
+          console.log(`listening on port http://localhost:${port}`);
+        });
+    })
+    .catch((err) => {
+        console.error("mongodb connection error" , err)
+        process.exit(1)
+    })
 
 
 
