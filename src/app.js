@@ -22,6 +22,10 @@ app.use(
 
 import healthCheckRouter from "./routes/healthcheck.routes.js";
 
+import authRouter from "./routes/auth.route.js";
+
+app.use("/api/v1/auth" , authRouter)
+
 app.use("/api/v1/healthcheck" , healthCheckRouter)
 
 app.get("/" , (req,res)=>{

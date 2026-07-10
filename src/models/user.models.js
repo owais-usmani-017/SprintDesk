@@ -1,81 +1,80 @@
-import mongoose  , { Schema }from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken"
-import crypto from "crypto"
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
-const userSchema = new Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim : true,
-    index : true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim : true,
-  },
-  fullName: {
-    type: String,
-    required: true,
-  },
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-  },
-  isEmailVerified :{
-    type: Boolean,
-    default: false,
-  },
-  refreshToken: {
-    type: String,
-  },
-  forgotPasswordToken: {
-    type: String,
-  },
-  forgotPasswordExpiry: {
-    type: Date,
-  },
-  emailVerificationToken: {
-    type: String,
-  },
-  emailVerificationExpiry: {
-    type: Date,
-  },
-  avatar: {
-    type: {
-      url: String,
-      localPath: String,
+const userSchema = new Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      index: true,
     },
-    default: {
-      url: `https://placehold.co/200x200`,
-      localPath: ``,
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    fullName: {
+      type: String,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    refreshToken: {
+      type: String,
+    },
+    forgotPasswordToken: {
+      type: String,
+    },
+    forgotPasswordExpiry: {
+      type: Date,
+    },
+    emailVerificationToken: {
+      type: String,
+    },
+    emailVerificationExpiry: {
+      type: Date,
+    },
+    avatar: {
+      type: {
+        url: String,
+        localPath: String,
+      },
+      default: {
+        url: `https://placehold.co/200x200`,
+        localPath: ``,
+      },
     },
   },
-},
-{
+  {
     timestamps: true,
-}
+  },
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    return next();
+    return;
   }
 
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 
 userSchema.methods.isPasswordCorrect = async function (Password) {
   return await bcrypt.compare(Password, this.password);
 };
 
-userSchema.methods.generateAccessToken = function(){
+userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
@@ -85,29 +84,29 @@ userSchema.methods.generateAccessToken = function(){
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY },
   );
-  
-}
+};
 
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      _id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY },
+  );
+};
 
-userSchema.methods.generateRefreshToken = function(){
-  return jwt.sign({
-    _id : this._id,
-    
-  },
-  process.env.REFRESH_TOKEN_SECRET,
-  {expiresIn: process.env.REFRESH_TOKEN_EXPIRY}
+userSchema.methods.generateTemporaryToken = function () {
+  const unhahsedToken = crypto.randomBytes(20).toString("hex");
 
-)
-}
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(unhahsedToken)
+    .digest("hex");
 
-userSchema.methods.generateTemporaryToken= function(){
-  const unhahsedToken = crypto.randonBytes(20).toString("hex")
+  const tokenExpiry = Date.now() + 20 * 60 * 1000;
 
-  const hashedToken = crypto.createHash("sha256").update(unhahsedToken).digest("hex")
-
-  const tokenExpiry = Date.now() + (20*60*1000)
-
-  return {unhahsedToken,hashedToken,tokenExpiry}
-}
+  return { unhahsedToken, hashedToken, tokenExpiry };
+};
 
 export const User = mongoose.model("User", userSchema);
