@@ -24,11 +24,12 @@ app.use(
 import healthCheckRouter from "./routes/healthcheck.routes.js";
 
 import authRouter from "./routes/auth.route.js";
+import projectRoter from "./routes/project.routes.js";
 import cookieParser from "cookie-parser";
 
-app.use("/api/v1/auth" , authRouter)
-
 app.use("/api/v1/healthcheck" , healthCheckRouter)
+app.use("/api/v1/auth" , authRouter)
+app.use("/api/v1/projects" , projectRoter)
 
 app.get("/" , (req,res)=>{
     res.send("welcome to SprintDesk")

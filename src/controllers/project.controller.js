@@ -143,7 +143,7 @@ const addMembersToProject = asyncHandler(async (req, res) => {
     return res.status(201).json(new ApiResponse(201, "Member added to project successfully"));
 });
 
-const getProjectMembersProject = asyncHandler(async (req, res) => {
+const getProjectMembers = asyncHandler(async (req, res) => {
     const { projectId } = req.params;
     const project = await Project.findById(projectId);
     if (!project) {
@@ -233,7 +233,7 @@ export {
     updateProject,
     deleteProject,
     addMembersToProject,
-    getProjectMembersProject,
+    getProjectMembers,
     updateMemberRole,
     deleteMember
 }
