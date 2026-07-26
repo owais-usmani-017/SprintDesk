@@ -28,6 +28,7 @@ router
     .route("/")
     .get(getProjects)
     .post(createProjectValidator(), validate, createProject);
+    
 router
     .route("/:projectId")
     .get(validateProjectpermission(AvailableUserRoles), getProjectById)
